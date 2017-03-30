@@ -1,0 +1,52 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
+
+<dom-module id="main-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+<firebase-app auth-domain="blinding-heat-1559.firebaseapp.com"
+        database-url="https://blinding-heat-1559.firebaseio.com"
+        api-key="AIzaSyBlDwxbyk0sAg63s8UF5-M94IfC3cGhPNU">
+
+</firebase-app>
+     <firebase-query
+          id="query"
+          path="/newline"
+          data="{{myData}}">
+      </firebase-query>
+
+      <template is="dom-repeat" items="{{myData}}">
+          <p>{{item.first_name}}</p>
+          
+        </template>
+    
+    
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'main-app',
+
+      properties: {
+        myData: {
+          type: Object,
+          observer: 'dataChanged'
+        }
+      },
+
+      dataChanged: function (data) {
+        // do something when the query returns values
+        console.log('Test',data);
+        
+      }
+
+    });
+  </script>
+</dom-module>

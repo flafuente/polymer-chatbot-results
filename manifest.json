@@ -1,0 +1,7 @@
+{
+  "name": "Event chatbot results",
+  "short_name": "Event chatbot results",
+  "description": "Chatbot results front using firebase",
+  "start_url": "/",
+  "display": "standalone"
+}
