@@ -1,32 +1,171 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="fa-gender.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/google-map/google-map.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+
 
 <dom-module id="main-app">
   <template>
     <style>
-      :host {
+       :host {
+        display: block;
+        height:100%;
+        @apply(--paper-font-common-base);
+      }
+
+      #dialog{
+        width:100%;
+      }
+
+      app-toolbar {
+        background-color: var(--google-green-700);
+        box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+        font-weight: bold;
+        color: white;
+        font-size: 18px;
+        z-index: 1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+      }
+
+      app-toolbar paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+
+      iron-list {
+        height:100%;
+        padding-top: 64px;
+        --iron-list-items-container: {
+          max-width: 800px;
+          margin: auto;
+          margin-top: 60px;
+          margin-bottom: 60px;
+          /*border-bottom: 1px solid #ddd;*/
+        }
+        ;
+      }
+
+      .item {
+        @apply(--layout-horizontal);
+        padding: 20px;
+        background-color: white;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        margin-bottom: 10px;
+      }
+
+      .avatar {
+        height: 40px;
+        width: 40px;
+        border-radius: 20px;
+        box-sizing: border-box;
+        background-color: #DDD;
+      }
+
+      .pad {
+        padding: 0 16px;
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+      }
+
+      .primary {
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .shortText,
+      .longText {
+        font-size: 14px;
+      }
+
+      .longText {
+        color: gray;
+        display: none;
+      }
+      
+      .item:hover .shortText::after {
+        content: ' [+]';
+        color: gray;
+      }
+
+      .item.expanded:hover .shortText::after {
+        content: '';
+      }
+
+      .item.expanded .longText {
         display: block;
       }
+
+      .item.expanded:hover .longText::after {
+        content: ' [–]';
+      }
+
+      .spacer {
+        @apply(--layout-flex);
+      }
+      
+      google-map {
+        height:400px;
+      }
     </style>
+    <paper-toolbar>
+      <div class="title">Chatbot Results</div>
+    </paper-toolbar>
+    <firebase-app auth-domain="blinding-heat-1559.firebaseapp.com" database-url="https://blinding-heat-1559.firebaseio.com" api-key="AIzaSyBlDwxbyk0sAg63s8UF5-M94IfC3cGhPNU">
 
-<firebase-app auth-domain="blinding-heat-1559.firebaseapp.com"
-        database-url="https://blinding-heat-1559.firebaseio.com"
-        api-key="AIzaSyBlDwxbyk0sAg63s8UF5-M94IfC3cGhPNU">
+    </firebase-app>
+    <firebase-query id="query" path="/newline" data="{{myData}}">
+    </firebase-query>
 
-</firebase-app>
-     <firebase-query
-          id="query"
-          path="/newline"
-          data="{{myData}}">
-      </firebase-query>
+    <paper-dialog id="dialog">
+      <google-map latitude="[[lat]]" longitude="[[lon]]" zoom="12" fit-to-marker api-key="AIzaSyD3E1D9b-Z7ekrT3tbhl_dy8DCXuIuDDRc">
+            <google-map-marker latitude="[[lat]]" longitude="[[lon]]"></google-map-marker>
+      </google-map>
+      <paper-button dialog-confirm>Close</paper-button>
+    </paper-dialog>
 
-      <template is="dom-repeat" items="{{myData}}">
-          <p>{{item.first_name}}</p>
-          
-        </template>
-    
-    
+    <iron-list id="list" items="[[myData]]" as="item" selection-enabled multi-selection>
+      <template>
+        <div>
+          <div class$="[[getClassForItem(item, selected)]]" tabindex$="[[tabIndex]]">
+            <iron-image class="avatar" sizing="contain" src="[[item.profile_pic]]"></iron-image>
+            <div class="pad">
+              <div class="primary">[[item.first_name]] [[item.last_name]]</div>
+              <div class="shortText">
+
+              </div>
+              <div class="longText">
+                  <template is="dom-repeat" items="[[_toArray(item.locations)]]" as="location">
+                      
+                      <paper-item onclick="dialog.open()" on-tap="updateCoords" lat$="[[location.value.lat]]" lon$="[[location.value.lon]]">[[location.value.when]]</paper-item>
+                      
+                  </template>
+                <!--<google-map latitude="[[_firstLocation('lat',item.locations)]]" longitude="[[_firstLocation('lon',item.locations)]]" fit-to-marker api-key="AIzaSyD3E1D9b-Z7ekrT3tbhl_dy8DCXuIuDDRc">
+                  <template is="dom-repeat" items="[[_toArray(item.locations)]]" as="location">
+                      <google-map-marker latitude="[[location.value.lat]]" longitude="[[location.value.lon]]"></google-map-marker>
+                  </template>
+                </google-map>-->
+
+              </div>
+            </div>
+            <iron-icon icon$="[[iconForItem(item)]]"></iron-icon>
+          </div>
+        </div>
+      </template>
+    </iron-list>
+
+
+
   </template>
 
   <script>
@@ -37,14 +176,47 @@
       properties: {
         myData: {
           type: Object,
-          observer: 'dataChanged'
+          observer: '_dataChanged'
+        },
+        map: {
+          type: Object,
+          observer: '_mapChanged'
         }
       },
-
-      dataChanged: function (data) {
+      getClassForItem: function (item, selected) {
+        return selected ? 'item expanded' : 'item';
+      },
+      iconForItem: function (item) {
+        return item.gender === 'male' ? 'fa-gender:mars' : 'fa-gender:venus';
+      },
+      updateCoords: function(e) {
+          var element = Polymer.dom(e).localTarget;
+          this.lat = element.getAttribute('lat');
+          this.lon = element.getAttribute('lon');
+      },
+      _dataChanged: function (data) {
         // do something when the query returns values
-        console.log('Test',data);
-        
+        console.log('Test', data);
+
+      },
+      _firstLocation: function (key, locations) {
+        var locationsFirst = Object.keys(locations)[0];
+        if (locationsFirst.length > 0) {
+          return locations[locationsFirst][key];
+        }
+        return 0;
+
+      },
+      _toArray: function (obj) {
+        if(!obj){
+          return [];
+        }
+        return Object.keys(obj).map(function (key) {
+          return {
+            name: key,
+            value: obj[key]
+          };
+        });
       }
 
     });
