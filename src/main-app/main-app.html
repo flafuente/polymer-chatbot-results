@@ -71,6 +71,11 @@
         box-sizing: border-box;
         background-color: #DDD;
       }
+      .collage {
+        width: 100px;
+        height: 100px;
+        box-sizing: border-box;
+      }
 
       .pad {
         padding: 0 16px;
@@ -149,6 +154,9 @@
                       
                       <paper-item onclick="dialog.open()" on-tap="updateCoords" lat$="[[location.value.lat]]" lon$="[[location.value.lon]]">[[location.value.when]]</paper-item>
                       
+                  </template>
+                  <template is="dom-repeat" items="[[_toArray(item.images)]]" as="image">
+                      <iron-image  class="collage" sizing="contain" src="[[image.value]]"></iron-image>
                   </template>
                 <!--<google-map latitude="[[_firstLocation('lat',item.locations)]]" longitude="[[_firstLocation('lon',item.locations)]]" fit-to-marker api-key="AIzaSyD3E1D9b-Z7ekrT3tbhl_dy8DCXuIuDDRc">
                   <template is="dom-repeat" items="[[_toArray(item.locations)]]" as="location">
